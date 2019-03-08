@@ -56,6 +56,23 @@
     }];
 }
 
+- (void)removeTrace:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString* traceName = [command.arguments objectAtIndex:0];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        FIRTrace *trace = [self.traces objectForKey:traceName];
+        
+        if (trace != nil) {
+            [self.traces removeObjectForKey:traceName];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Trace not found"];
+        }
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
 - (void)stopTrace:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         NSString* traceName = [command.arguments objectAtIndex:0];

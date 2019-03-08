@@ -33,6 +33,9 @@ public class FirebasePerformancePlugin extends CordovaPlugin {
     } else if ("stopTrace".equals(action)) {
       stopTrace(callbackContext, args.getString(0));
       return true;
+    } else if ("removeTrace".equals(action)) {
+      removeTrace(callbackContext, args.getString(0));
+      return true;
     } else if ("incrementCounter".equals(action)) {
       incrementCounter(callbackContext, args.getString(0), args.getString(1));
       return true;
@@ -80,6 +83,26 @@ public class FirebasePerformancePlugin extends CordovaPlugin {
 
           if (myTrace != null) {
             myTrace.incrementCounter(counterNamed);
+            callbackContext.success();
+          } else {
+            callbackContext.error("Trace not found");
+          }
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          callbackContext.error(e.getMessage());
+        }
+      }
+    });
+  }
+
+  private void removeTrace(final CallbackContext callbackContext, final String name) {
+    final FirebasePerformancePlugin self = this;
+    cordova.getThreadPool().execute(new Runnable() {
+      public void run() {
+        try {
+          if (self.traces.containsKey(name)) {
+            self.traces.remove(name);
             callbackContext.success();
           } else {
             callbackContext.error("Trace not found");
